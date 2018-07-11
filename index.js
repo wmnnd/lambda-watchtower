@@ -47,7 +47,7 @@ exports.handler = function(event, context, callback) {
                 start: hrtime()
             }
         }
-		if(target.protocol === 'http/s') {
+		if(target.protocol === undefined || target.protocol === 'http/s') {
 			const request = createRequest(target.url, response => {
 				data.statusCode = response.statusCode
 				response.once("readable", () => data.timings.readable = hrtime())
