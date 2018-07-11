@@ -1,5 +1,6 @@
 const https = require("https")
 const http = require("http")
+const net = require('net')
 const {hrtime} = process
 const AWS = require("aws-sdk")
 const cloudwatch = new AWS.CloudWatch()
@@ -46,31 +47,82 @@ exports.handler = function(event, context, callback) {
                 start: hrtime()
             }
         }
-		const request = createRequest(target.url, response => {
-			data.statusCode = response.statusCode
-			response.once("readable", () => data.timings.readable = hrtime())
-			response.once("end", () => data.timings.end = hrtime())
-        })
-        request.setTimeout(1)
-        const timeout = setTimeout(() => request.abort(), event.timeout || 2000)
-		request.on("socket", socket => {
-			socket.on("lookup", () => data.timings.lookup = hrtime())
-			socket.on("connect", () => data.timings.connect = hrtime())
-			socket.on("secureConnect", () => data.timings.secureConnect = hrtime())
-        })
-        request.on("close", () => {
-            data.timings.close = hrtime()
-            data.durations = processTimings(data.timings)
-            clearTimeout(timeout)
-            resolve(data)
-        })
-        request.on("error", () => {
-            data.timings.close = hrtime()
-            data.durations = processTimings(data.timings)
-            data.statusCode = typeof data.statusCode !== "undefined" ? data.statusCode : 0
-            clearTimeout(timeout)
-            resolve(data)
-        })
+		if(target.protocol === 'http/s') {
+			const request = createRequest(target.url, response => {
+				data.statusCode = response.statusCode
+				response.once("readable", () => data.timings.readable = hrtime())
+				response.once("end", () => data.timings.end = hrtime())
+			})
+			request.setTimeout(1)
+			const timeout = setTimeout(() => request.abort(), event.timeout || 2000)
+			request.on("socket", socket => {
+				socket.on("lookup", () => data.timings.lookup = hrtime())
+				socket.on("connect", () => data.timings.connect = hrtime())
+				socket.on("secureConnect", () => data.timings.secureConnect = hrtime())
+			})
+			request.on("close", () => {
+				data.timings.close = hrtime()
+				data.durations = processTimings(data.timings)
+				clearTimeout(timeout)
+				resolve(data)
+			})
+			request.on("error", () => {
+				data.timings.close = hrtime()
+				data.durations = processTimings(data.timings)
+				data.statusCode = typeof data.statusCode !== "undefined" ? data.statusCode : 0
+				clearTimeout(timeout)
+				resolve(data)
+			})
+		} else if (target.protocol === 'port') {
+			
+			if(target.url.startsWith('http://') || target.url.startsWith('https://')){
+				reject("http url for non http check")
+			}
+			
+			const socket = new net.Socket()
+
+			socket.setTimeout(event.timeout || 2000);
+
+			socket.on('connect',() => {
+				data.timings.connect = hrtime()
+			})
+			socket.on('lookup',() => {
+				data.timings.lookup = hrtime()
+			})
+			socket.on('data',() => {
+				data.timings.readable = hrtime()
+				socket.end();
+			})
+			socket.on('end',() => {
+				data.timings.end = hrtime()
+			})
+			socket.on('error',() => {
+				data.timings.close = hrtime()
+				data.durations = processTimings(data.timings)
+				data.statusCode = -1
+				socket.destroy()
+				resolve(data)
+			});
+			socket.on('timeout', () => {
+				data.timings.close = hrtime()
+				data.durations = processTimings(data.timings)
+				data.statusCode = -1
+				socket.destroy()
+				resolve(data)
+			});
+			socket.on('close', () => {
+				data.timings.close = hrtime()
+				data.durations = processTimings(data.timings)
+				data.statusCode = 0
+				socket.destroy()
+				resolve(data)
+			})
+
+			socket.connect(target.port, target.url, () => {
+			});
+			
+			
+		}
 	}))
     
 	return Promise.all(requests).then(results => {
@@ -106,5 +158,8 @@ exports.handler = function(event, context, callback) {
 			callback(error,null);
 		});
 
+	})
+	.catch(error => {
+		callback(error)
 	})
 }
