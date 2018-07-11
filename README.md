@@ -9,8 +9,15 @@ Logs are stored as AWS CloudWatch metrics.
   "targets": [
     {
       "url": "https://example.org",
-      "name": "example.org" //Optional, defaults to url; Display name of the target
-    }
+      "name": "example.org", //Optional, defaults to url; Display name of the target
+	  "protocol": "http/s"
+    },
+	{
+	  "url": "mailserver.example.org",
+	  "name": "Mailserver SMTP port check",
+	  "protocol": "port",
+	  "port": 25
+	}
   ],
   "namespace": "Watchtower", //Optional, defaults to "Watchtower"; CloudWatch namespace
   "timings": ["readable", "total"], Optional, defaults to ["readable", "total"]; Determine which timings are logged.
