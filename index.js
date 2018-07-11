@@ -98,8 +98,13 @@ exports.handler = function(event, context, callback) {
 			Namespace: event.namespace || "Watchtower",
 			MetricData: metricData,
         }
-        cloudwatch.putMetricData(params, (error, data) => {
-			callback(error, data)
+        return cloudwatch.putMetricData(params).promise()
+		.then(data => {
+			callback(null,data);
 		})
+		.catch(error => {
+			callback(error,null);
+		});
+
 	})
 }
