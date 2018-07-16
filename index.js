@@ -7,7 +7,8 @@ const cloudwatch = new AWS.CloudWatch()
 
 const hrToMs = (timing) => Math.round(timing[0] * 1000 + timing[1] / 1000000)
 const hrDiff = (start, end) => hrToMs(end) - hrToMs(start)
-const timingsDiff = (timings, key1, key2) => timings[key1] && timings[key2] && hrDiff(timings[key1], timings[key2])
+const timingsDiff = (timings, key1, key2) =>
+    (timings[key1] && timings[key2] && hrDiff(timings[key1], timings[key2])) || -1
 const defaultTimeout = 2000
 
 const processTimings = function(timings) {
