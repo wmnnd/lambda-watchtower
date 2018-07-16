@@ -28,14 +28,17 @@ const createRequest = function(url, callback) {
 /**
  * Query HTTP(S) Endpoints and log timings and HTTP status with CloudWatch
  * 
- * @param {Object} event
- * @param {Object[]} event.targets - HTTP(S) Endpoints to be checked
+ * @param {Object} event - Requested checks
+ * @param {Object[]} event.targets - Endpoints to be checked
  * @param {string} event.targets[].url - Endpoint URL
  * @param {string} [event.targets[].name] - Endpoint Name
  * @param {string} [event.targets[].type] - Check type - can be "http", "https" or "port"
  * @param {string[]} [event.logTimings=["readable", "total"]] - Determine which timings are logged.
  * @param {string} [event.namespace="Watchtower"] - CloudWatch namespace
  * @param {number} [event.timeout=2000] - Time in ms before requests are aborted.
+ * @param {function} callback - Lambda callback function
+ * 
+ * @returns {Promise} - Promise that resolves if all checks were successful and data was stored in CloudWatch
  */
 exports.handler = function(event, context, callback) {
     const targets = event.targets
