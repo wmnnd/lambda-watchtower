@@ -1,0 +1,12 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": ["error", 4],
+        "semi": ["error", "never"],
+        "quotes": ["error", "double"],
+        "linebreak-style": ["error", "unix"]
+    }
+}
