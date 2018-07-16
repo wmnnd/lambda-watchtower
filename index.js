@@ -27,6 +27,23 @@ const createRequest = function(url, callback) {
     return handler.get(url, callback)
 }
 
+const sendData = (data, event) => Promise.all(
+    data
+        .reduce((acc, metric) => {
+            let arr = acc[acc.length - 1]
+            if (!arr || arr.length >= 10) {
+                acc.push([metric])
+            } else {
+                arr.push(metric)
+            }
+            return acc
+        }, [])
+        .map(metricData => cloudwatch.putMetricData({
+            Namespace: event.namespace || "Watchtower",
+            MetricData: metricData
+        }).promise())
+)
+
 const handlers = {}
 
 /**
@@ -86,16 +103,12 @@ exports.handler = function(event, context, callback) {
             }, ...timingMetrics]
         }).reduce((acc, val) => [...acc, ...val], [])
 
-        const params = {
-            Namespace: event.namespace || "Watchtower",
-            MetricData: metricData,
-        }
-        return cloudwatch.putMetricData(params).promise()
+        return sendData(metricData, event)
             .then(data => {
-                callback(null,data)
+                callback(null, data)
             })
             .catch(error => {
-                callback(error,null)
+                callback(error, null)
             })
 
     }).catch(error => {
