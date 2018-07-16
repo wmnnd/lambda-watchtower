@@ -157,20 +157,42 @@ exports.handler = function(event, context, callback) {
             }, ...timingMetrics]
         }).reduce((acc, val) => [...acc, ...val], [])
 
-        const params = {
-			Namespace: event.namespace || "Watchtower",
-			MetricData: metricData,
+        if(metricData.length > 9) {
+            const chunks = ArrayChunk(metricData,10);
+            
+            const cloudwatchResponses = chunks.map(metric => {
+                
+                const params = {
+                    Namespace: event.namespace || "Watchtower",
+                    MetricData: metric,
+                }
+                return cloudwatch.putMetricData(params).promise()
+            })
+            
+            return Promise.all(cloudwatchResponses)
+                .then(responses => {
+                    callback(null,responses)
+            })
+            .catch(errors => {
+                callback(errors,null)
+            })
+            
+        } else {
+            const params = {
+                Namespace: event.namespace || "Watchtower",
+                MetricData: metricData,
+            }
+            return cloudwatch.putMetricData(params).promise()
+            .then(data => {
+                callback(null,data);
+            })
+            .catch(error => {
+                callback(error,null);
+            });
         }
-        return cloudwatch.putMetricData(params).promise()
-		.then(data => {
-			callback(null,data);
-		})
-		.catch(error => {
-			callback(error,null);
-		});
 
-	})
-	.catch(error => {
-		callback(error)
-	})
+    })
+    .catch(error => {
+        callback(error)
+    })
 }
