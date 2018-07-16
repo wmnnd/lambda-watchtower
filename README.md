@@ -10,12 +10,11 @@ Logs are stored as AWS CloudWatch metrics.
     {
       "url": "https://example.org",
       "name": "example.org", //Optional, defaults to url; Display name of the target
-	  "protocol": "http/s"
     },
 	{
-	  "url": "mailserver.example.org",
 	  "name": "Mailserver SMTP port check",
-	  "protocol": "port",
+	  "type": "port",
+	  "hostname": "mailserver.example.org",
 	  "port": 25
 	}
   ],

@@ -34,9 +34,10 @@ const handlers = {}
  * 
  * @param {Object} event - Requested checks
  * @param {Object[]} event.targets - Endpoints to be checked
- * @param {string} event.targets[].url - Endpoint URL
+ * @param {string} [event.targets[].url] - Endpoint URL - use for http(s) endpoints
+ * @param {string} [event.targets[].hostname] - Endpoint Hostname - use for non-http(s) endpoints
  * @param {string} [event.targets[].name] - Endpoint Name
- * @param {string} [event.targets[].type] - Check type - can be "http", "https" or "port"
+ * @param {string} [event.targets[].type] - Check type - can be "http(s)" or "port". Defaults to "http(s)"
  * @param {string[]} [event.logTimings=["readable", "total"]] - Determine which timings are logged.
  * @param {string} [event.namespace="Watchtower"] - CloudWatch namespace
  * @param {number} [event.timeout=2000] - Time in ms before requests are aborted.
@@ -57,10 +58,10 @@ exports.handler = function(event, context, callback) {
         }
         switch (target.type) {
         case "port":
-            handlers.port(target, data, resolve, reject)
+            handlers.port(target, data, event, resolve, reject)
             break
         default:
-            handlers.http(target, data, resolve, reject)
+            handlers.http(target, data, event, resolve, reject)
         }
     }))
     
@@ -105,7 +106,7 @@ exports.handler = function(event, context, callback) {
 /*
 Check handler for HTTP(S)
 */
-handlers.http = (target, data, resolve, reject) => {
+handlers.http = (target, data, event, resolve, reject) => {
     const request = createRequest(target.url, response => {
         data.statusCode = response.statusCode
         response.once("readable", () => data.timings.readable = hrtime())
@@ -136,11 +137,7 @@ handlers.http = (target, data, resolve, reject) => {
 /*
 Check handler for ports
 */
-handlers.port = (target, data, resolve, reject) => {
-    if(target.url.startsWith("http://") || target.url.startsWith("https://")){
-        reject("http url for non http check")
-    }
-	
+handlers.port = (target, data, event, resolve, reject) => {
     const socket = new net.Socket()
     socket.setTimeout(event.timeout || defaultTimeout)
 
@@ -179,6 +176,5 @@ handlers.port = (target, data, resolve, reject) => {
         resolve(data)
     })
 
-    socket.connect(target.port, target.url, () => {
-    })
+    socket.connect(target.port, target.hostname, () => {})
 }
