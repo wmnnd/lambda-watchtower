@@ -32,6 +32,7 @@ const createRequest = function(url, callback) {
  * @param {Object[]} event.targets - HTTP(S) Endpoints to be checked
  * @param {string} event.targets[].url - Endpoint URL
  * @param {string} [event.targets[].name] - Endpoint Name
+ * @param {string} [event.targets[].type] - Check type - can be "http", "https" or "port"
  * @param {string[]} [event.logTimings=["readable", "total"]] - Determine which timings are logged.
  * @param {string} [event.namespace="Watchtower"] - CloudWatch namespace
  * @param {number} [event.timeout=2000] - Time in ms before requests are aborted.
@@ -47,7 +48,7 @@ exports.handler = function(event, context, callback) {
                 start: hrtime()
             }
         }
-		if(target.protocol === undefined || target.protocol === 'http/s') {
+		if (target.type === undefined || target.type === 'http/s') {
 			const request = createRequest(target.url, response => {
 				data.statusCode = response.statusCode
 				response.once("readable", () => data.timings.readable = hrtime())
@@ -73,7 +74,7 @@ exports.handler = function(event, context, callback) {
 				clearTimeout(timeout)
 				resolve(data)
 			})
-		} else if (target.protocol === 'port') {
+		} else if (target.type === 'port') {
 			
 			if(target.url.startsWith('http://') || target.url.startsWith('https://')){
 				reject("http url for non http check")
