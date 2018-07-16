@@ -35,7 +35,7 @@ The following timings are supported and can be logged by `lambda-watchtower`:
 - `total`: Total time from the beginning to the end of the request
 
 # Contributing
-Push requests and issues for additional features are welcome.
+Pull requests and issues for additional features are welcome.
 
 # License
 `lambda-watchtower` is licensed under the terms of the MIT license. For further information, please refer to the `LICENSE` file.
