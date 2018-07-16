@@ -1,0 +1,25 @@
+{
+  "name": "lambda-watchtower",
+  "version": "1.0.0",
+  "description": "Check endpoint availability and response time on AWS Lambda",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.275.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wmnnd/lambda-watchtower.git"
+  },
+  "author": "Philipp Schmieder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wmnnd/lambda-watchtower/issues"
+  },
+  "homepage": "https://github.com/wmnnd/lambda-watchtower#readme"
+}
