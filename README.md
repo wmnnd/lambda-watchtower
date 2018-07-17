@@ -14,7 +14,7 @@ Logs are stored as AWS CloudWatch metrics.
 	{
 	  "name": "Mailserver SMTP port check",
 	  "type": "port",
-	  "hostname": "mailserver.example.org",
+	  "url": "mailserver.example.org",
 	  "port": 25
 	}
   ],
@@ -33,6 +33,18 @@ The following timings are supported and can be logged by `lambda-watchtower`:
 - `readable`: Time between successfully establishing the connection (and HTTPS handshake) and first byte received
 - `close`: Time between first byte and the end of the request
 - `total`: Total time from the beginning to the end of the request
+
+
+# Setup Guide
+
+ - Create a new IAM Lambda Role that has access to PUT CloudWatch Metrics
+ - Create a new Lambda Function with the contents of `index.js` assign the IAM role created above to this function
+ - Create a new CloudWatch Event Rule of type schedule
+ - Select how often you would like to check your endpoints
+ - Add the new Lambda function as the target
+ - Configure the input of the target and select "Constant (JSON text)"
+ - Put the configuration JSON (from above) into the Constant JSON text field
+ - Save everything and give it a few minutes, new CloudWatch metrics take additional time to show up
 
 # Contributing
 Pull requests and issues for additional features are welcome.
