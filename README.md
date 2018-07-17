@@ -35,16 +35,19 @@ The following timings are supported and can be logged by `lambda-watchtower`:
 - `total`: Total time from the beginning to the end of the request
 
 
-# Setup Guide
+# Setup
+There is a detailed step-by-step guide explaining how to set up `lambda-watchtower`. [Read the step-by-step instructions](https://medium.com/@pentacent/serverless-monitoring-of-apps-websites-with-aws-lambda-5431e6713a66).
 
- - Create a new IAM Lambda Role that has access to PUT CloudWatch Metrics
- - Create a new Lambda Function with the contents of `index.js` assign the IAM role created above to this function
- - Create a new CloudWatch Event Rule of type schedule
- - Select how often you would like to check your endpoints
- - Add the new Lambda function as the target
- - Configure the input of the target and select "Constant (JSON text)"
- - Put the configuration JSON (from above) into the Constant JSON text field
- - Save everything and give it a few minutes, new CloudWatch metrics take additional time to show up
+If you’re already familiar with AWS IAM and Lambda, here is the short version for you:
+
+ 1. Create a new IAM Role for Lambda with `PutMetricData` permissions for CloudWatch
+ 2. Create a new Lambda Function with the contents of `index.js` assign the IAM role created above to this function.
+ 3. Create a new CloudWatch Event Rule of type schedule.
+ 4. Select how often you would like to check your endpoints.
+ 5. Add the new Lambda function as the target.
+ 6. Configure the input of the target and select "Constant (JSON text)".
+ 7. Put the configuration JSON (see [Usage](#usage)) in the input field.
+ 8. Save everything and give it a few minutes. New CloudWatch metrics can take a little while to show up.
 
 # Contributing
 Pull requests and issues for additional features are welcome.
