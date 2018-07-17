@@ -14,7 +14,7 @@ Logs are stored as AWS CloudWatch metrics.
 	{
 	  "name": "Mailserver SMTP port check",
 	  "type": "port",
-	  "url": "mailserver.example.org",
+	  "hostname": "mailserver.example.org",
 	  "port": 25
 	}
   ],
