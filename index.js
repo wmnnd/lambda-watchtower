@@ -74,6 +74,9 @@ exports.handler = function(event, context, callback) {
             }
         }
         switch (target.type) {
+        case "smtp":
+            handlers.smtp(target, data, event, resolve, reject)
+            break
         case "port":
             handlers.port(target, data, event, resolve, reject)
             break
@@ -190,4 +193,55 @@ handlers.port = (target, data, event, resolve, reject) => {
     })
 
     socket.connect(target.port, target.hostname, () => {})
+}
+
+handlers.smtp = (target, data, event, resolve, reject) => {
+
+    const socket = new net.Socket()
+    const smtpFlags = {}
+    socket.setTimeout(event.timeout || defaultTimeout)
+    socket.setEncoding("utf8")
+
+    socket.on("connect",() => {
+        data.timings.connect = hrtime()
+    })
+    socket.on("lookup",() => {
+        data.timings.lookup = hrtime()
+    })
+    socket.on("data",(smtpdata) => {
+        if(smtpdata.match(/^220/) && smtpFlags.greeting !== true) {
+            socket.write("EHLO lambda-watchtower.test\r\n","utf8")
+            smtpFlags.greeting = true
+        } else if(smtpdata.match(/^250/)) {
+            data.timings.readable = hrtime()
+            socket.end()
+        }
+    })
+    socket.on("end",() => {
+        data.timings.end = hrtime()
+    })
+    socket.on("error",() => {
+        data.timings.close = hrtime()
+        data.durations = processTimings(data.timings)
+        data.statusCode = -1
+        socket.destroy()
+        resolve(data)
+    })
+    socket.on("timeout", () => {
+        data.timings.close = hrtime()
+        data.durations = processTimings(data.timings)
+        data.statusCode = -1
+        socket.destroy()
+        resolve(data)
+    })
+    socket.on("close", () => {
+        data.timings.close = hrtime()
+        data.durations = processTimings(data.timings)
+        data.statusCode = 0
+        socket.destroy()
+        resolve(data)
+    })
+
+    socket.connect(target.port, target.hostname, () => {})
+
 }
