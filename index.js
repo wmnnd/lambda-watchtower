@@ -74,9 +74,9 @@ exports.handler = function(event, context, callback) {
             }
         }
         switch (target.type) {
-		case "smtp":
-			handlers.smtp(target, data, event, resolve, reject)
-			break
+        case "smtp":
+            handlers.smtp(target, data, event, resolve, reject)
+            break
         case "port":
             handlers.port(target, data, event, resolve, reject)
             break
@@ -196,11 +196,11 @@ handlers.port = (target, data, event, resolve, reject) => {
 }
 
 handlers.smtp = (target, data, event, resolve, reject) => {
-	
-	const socket = new net.Socket()
-	const smtpFlags = {}
-	socket.setTimeout(event.timeout || defaultTimeout)
-	socket.setEncoding('utf8')
+
+    const socket = new net.Socket()
+    const smtpFlags = {}
+    socket.setTimeout(event.timeout || defaultTimeout)
+    socket.setEncoding("utf8")
 
     socket.on("connect",() => {
         data.timings.connect = hrtime()
@@ -209,13 +209,13 @@ handlers.smtp = (target, data, event, resolve, reject) => {
         data.timings.lookup = hrtime()
     })
     socket.on("data",(smtpdata) => {
-		if(smtpdata.match(/^220/) && smtpFlags.greeting !== true) {
-			socket.write("EHLO lambda-watchtower.test\r\n",'utf8')
-			smtpFlags.greeting = true
-		} else if(smtpdata.match(/^250/)) {
-			data.timings.readable = hrtime()
-			socket.end()
-		}
+        if(smtpdata.match(/^220/) && smtpFlags.greeting !== true) {
+            socket.write("EHLO lambda-watchtower.test\r\n","utf8")
+            smtpFlags.greeting = true
+        } else if(smtpdata.match(/^250/)) {
+            data.timings.readable = hrtime()
+            socket.end()
+        }
     })
     socket.on("end",() => {
         data.timings.end = hrtime()
@@ -243,5 +243,5 @@ handlers.smtp = (target, data, event, resolve, reject) => {
     })
 
     socket.connect(target.port, target.hostname, () => {})
-	
+
 }
