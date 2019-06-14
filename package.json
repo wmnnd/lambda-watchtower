@@ -7,7 +7,7 @@
     "aws-sdk": "^2.275.1"
   },
   "devDependencies": {
-    "eslint": "^5.1.0"
+    "eslint": "^5.16.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
