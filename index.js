@@ -5,6 +5,13 @@ const {hrtime} = process
 const AWS = require("aws-sdk")
 const cloudwatch = new AWS.CloudWatch()
 
+const httpoptions = {
+    headers: {
+        'User-Agent': 'Watchtower/0.1',
+    }
+}
+
+
 const hrToMs = (timing) => Math.round(timing[0] * 1000 + timing[1] / 1000000)
 const hrDiff = (start, end) => hrToMs(end) - hrToMs(start)
 const timingsDiff = (timings, key1, key2) =>
@@ -24,7 +31,7 @@ const processTimings = function(timings) {
 
 const createRequest = function(url, callback) {
     const handler = url.startsWith("http://") ? http : https
-    return handler.get(url, callback)
+    return handler.get(url, httpoptions, callback)
 }
 
 const sendData = (data, event) => Promise.all(
