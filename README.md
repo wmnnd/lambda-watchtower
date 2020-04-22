@@ -19,7 +19,7 @@ Logs are stored as AWS CloudWatch metrics.
 	}
   ],
   "namespace": "Watchtower", //Optional, defaults to "Watchtower"; CloudWatch namespace
-  "timings": ["readable", "total"], Optional, defaults to ["readable", "total"]; Determine which timings are logged.
+  "logTimings": ["readable", "total"], Optional, defaults to ["readable", "total"]; Determine which timings are logged.
   "timeout": 2000 //Optional, defaults to 2000: Time in ms before requests are aborted
 }
 ```
