@@ -126,6 +126,7 @@ handlers.http = (target, data, event, resolve, reject) => {
     const request = createRequest(target.url, response => {
         data.statusCode = response.statusCode
         response.once("readable", () => data.timings.readable = hrtime())
+        response.on("readable", () => response.read()) // discard the response buffer
         response.once("end", () => data.timings.end = hrtime())
     })
     request.setTimeout(1)
