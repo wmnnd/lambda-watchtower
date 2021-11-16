@@ -4,7 +4,7 @@
   "description": "Check endpoint availability and response time on AWS Lambda",
   "main": "index.js",
   "dependencies": {
-    "aws-sdk": "^2.275.1"
+    "aws-sdk": "^2.814.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0"
